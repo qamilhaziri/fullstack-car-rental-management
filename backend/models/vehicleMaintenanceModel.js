@@ -4,10 +4,13 @@ const vehicleMaintenanceModel = {
 
     registerVehicleMaintenance: async (vehicle_id,vehicleMaintenance) => {
 
-        vehicleMaintenance['vehicle_id'] = vehicle_id;
+        const data = {
+            ...vehicleMaintenance,
+            vehicle_id
+        };
 
        const result = await db("vehicle_maintenance")
-                .insert(vehicleMaintenance)
+                .insert(data)
                 .returning("*");
 
         return result;
