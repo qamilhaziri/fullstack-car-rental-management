@@ -1,4 +1,4 @@
-import {  registerPayment,getPaymentByRentId,getPaymentById,updatePayment,removePayment } from "../controllers/rentController.js";
+import {  registerPayment,getPaymentByRentId,getPaymentById,updatePayment,removePayment } from "../controllers/paymentController.js";
 import express from "express"
 
 const paymentRouter = express.Router();
