@@ -34,6 +34,18 @@ const vehicleModel = {
                     .first()
     },
 
+    getAllVehiclesAvailable: async() => {
+        const result =  await db.raw(`SELECT v.*,brand,cost_per_hour, cost_per_day
+                            FROM vehicle v
+                            join brand b on v.brand_id = b.brand_id
+                            join vehicle_cost vc on v.cost_id = vc.vCost_id
+                            LEFT JOIN rent r ON v.vehicle_id = r.vehicle_id
+                                AND r.is_returned = false
+                            WHERE r.vehicle_id IS NULL`);
+
+        return result.rows;
+    },
+
     updateVehicle: async(vehicle_id,data) => {
         const result = db("vehicle")
                         .where({vehicle_id})

@@ -35,6 +35,16 @@ export const getVehicleById = async (req,res) => {
    }
 }
 
+export const getAllVehiclesAvailable = async (req,res) => {
+   try{
+    const vehicles = await vehicleModel.getAllVehiclesAvailable();
+    
+    res.json(vehicles);
+   }catch(error){
+        res.status(500).json({error: error.message});
+   }
+}
+
 export const updateVehicle = async(req,res) => {
    try{
       const id = req.params.id;
