@@ -2,7 +2,15 @@ import vehicleModel from "../models/vehicleModel.js";
 
 export const registerVehicle = async (req,res) => {
    try{
-     await vehicleModel.registerVehicle(req.body);
+      const file_name = req.file ? req.file.filename : null;
+
+      const data = {
+         ...req.body,
+         file_name
+      }
+
+      await vehicleModel.registerVehicle(data);
+
      
      return res.status(201).json({
       message: "Vehicle inserted successfully"

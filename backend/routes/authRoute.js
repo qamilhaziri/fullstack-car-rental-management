@@ -1,10 +1,11 @@
 import {login, logout, me} from "../controllers/authController.js";
 import express from "express"
 import authMiddleware from "../middleware/authMiddleware.js";
+import { loginLimiter } from "../middleware/rateLimit.js";
 
 const authRouter = express.Router();
 
-authRouter.post("/login",login);
+authRouter.post("/login",loginLimiter,login);
 
 authRouter.post("/logout",logout);
 
