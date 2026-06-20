@@ -3,6 +3,7 @@ dotenv.config();
 
 import express from "express"
 import cookieParser from "cookie-parser";
+import cors from "cors"
 import vehicleRouter from "./routes/vehicleRoute.js";
 import clientRouter from "./routes/clientRoute.js";
 import vehicleMaintenanceRouter from "./routes/vehicleMaintenanceRoute.js";
@@ -19,6 +20,10 @@ const PORT = 5005
 
 app.use(express.json());
 app.use(cookieParser());
+app.use(cors({
+      origin:"http://localhost:5173",
+      credentials:true
+}))
 
 app.use("/api/auth",authRouter);
 app.use("/api/vehicles",authMiddleware,vehicleRouter)
