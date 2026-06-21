@@ -12,6 +12,7 @@ import vehicleDamageRouter from "./routes/vehicleDamageRoute.js";
 import rentRouter from "./routes/rentRoute.js";
 import paymentRouter from "./routes/paymentRoute.js";
 import authRouter from "./routes/authRoute.js";
+import brandRouter from "./routes/brandRoute.js";
 import authMiddleware from "./middleware/authMiddleware.js";
 
 
@@ -26,6 +27,7 @@ app.use(cors({
 }))
 
 app.use("/api/auth",authRouter);
+app.use("/api/brands",authMiddleware,brandRouter)
 app.use("/api/vehicles",authMiddleware,vehicleRouter)
 app.use("/api/clients",authMiddleware,clientRouter)
 app.use("/api/vehicleMaintenances",authMiddleware,vehicleMaintenanceRouter)

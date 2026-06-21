@@ -30,11 +30,11 @@ function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 px-4 py-8 text-white">
+    <div className="min-h-screen bg-slate-100 px-4 py-8 text-white">
       <div className="mx-auto grid min-h-[calc(100vh-4rem)] max-w-5xl overflow-hidden rounded-2xl bg-white shadow-2xl md:grid-cols-[1fr_420px]">
-        <section className="flex flex-col justify-between bg-slate-900 p-8 md:p-10">
+        <section className="flex flex-col justify-between bg-gradient-to-br from-slate-950 via-blue-950 to-slate-900 p-8 md:p-10">
           <div>
-            <p className="text-sm font-medium uppercase tracking-wide text-blue-300">Car Rental Management</p>
+            <p className="text-sm font-medium uppercase tracking-wide text-emerald-300">Car Rental Management</p>
             <h1 className="mt-4 max-w-xl text-3xl font-semibold leading-tight md:text-4xl">
               Manage vehicles, clients, rents and payments from one place.
             </h1>
@@ -44,15 +44,15 @@ function LoginPage() {
           </div>
 
           <div className="mt-10 grid gap-3 text-sm text-slate-300 sm:grid-cols-3">
-            <div className="rounded-xl bg-white/10 p-4">
+            <div className="rounded-xl border border-white/10 bg-white/10 p-4">
               <p className="font-semibold text-white">Vehicles</p>
               <p className="mt-1">Availability and pricing.</p>
             </div>
-            <div className="rounded-xl bg-white/10 p-4">
+            <div className="rounded-xl border border-white/10 bg-white/10 p-4">
               <p className="font-semibold text-white">Clients</p>
               <p className="mt-1">Fast search and register.</p>
             </div>
-            <div className="rounded-xl bg-white/10 p-4">
+            <div className="rounded-xl border border-white/10 bg-white/10 p-4">
               <p className="font-semibold text-white">Payments</p>
               <p className="mt-1">Track rent payments.</p>
             </div>
@@ -90,7 +90,7 @@ function LoginPage() {
 
             {error ? <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p> : null}
 
-            <button type="submit" disabled={loading} className="w-full rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-60">
+            <button type="submit" disabled={loading} className="w-full rounded-lg bg-blue-700 px-4 py-2.5 text-sm font-semibold text-white hover:bg-blue-800 disabled:opacity-60">
               {loading ? "Signing in..." : "Login"}
             </button>
           </form>

@@ -63,7 +63,10 @@ export const getVehicleImage = (req,res) => {
 export const updateVehicle = async(req,res) => {
    try{
       const id = req.params.id;
-      const data = req.body;
+      const data = {
+         ...req.body,
+         ...(req.file ? { file_name: req.file.filename } : {})
+      };
 
       const vehicle = await vehicleModel.updateVehicle(id,data);
       

@@ -14,7 +14,7 @@ vehicleRouter.get("/:id",getVehicleById);
 
 vehicleRouter.get("/uploads/:filename",getVehicleImage)
 
-vehicleRouter.patch("/:id",updateVehicle);
+vehicleRouter.patch("/:id",upload.single("image"),updateVehicle);
 
 vehicleRouter.delete("/:id",removeVehicle);
 

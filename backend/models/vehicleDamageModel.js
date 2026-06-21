@@ -19,6 +19,7 @@ const vehicleDamageModel = {
                             "vd.other_info",
                             "vd.date_of_damage",
                             "c.client_name",
+                            "c.client_surname",
                             "v.model",
                             "v.vehicle_type")
                     .where("vd.vehicle_id",vehicle_id)
@@ -32,6 +33,7 @@ const vehicleDamageModel = {
                             "vd.other_info",
                             "vd.date_of_damage",
                             "c.client_name",
+                            "c.client_surname",
                             "v.model",
                             "v.vehicle_type")
                     .where("vd.client_id",client_id)

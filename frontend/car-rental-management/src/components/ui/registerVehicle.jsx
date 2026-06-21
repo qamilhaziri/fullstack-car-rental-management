@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { registerBrand } from "../../api/brandApi";
 import { registerVehicleCost, updateVehicleCost } from "../../api/vehicleCostApi";
 import { registerVehicle, updateVehicle } from "../../api/vehicleApi";
 
@@ -27,7 +28,15 @@ const getCostIdFromResponse = (response) => {
   return "";
 };
 
-function RegisterVehicle({ editingVehicle, onCancelEdit, onSuccess }) {
+const getBrandIdFromResponse = (response) => {
+  if (!response) return "";
+  if (response.brand_id) return response.brand_id;
+  if (response.brand?.brand_id) return response.brand.brand_id;
+  if (Array.isArray(response) && response[0]?.brand_id) return response[0].brand_id;
+  return "";
+};
+
+function RegisterVehicle({ brands = [], editingVehicle, onCancelEdit, onSuccess }) {
   const isEditing = Boolean(editingVehicle?.vehicle_id);
   const [formData, setFormData] = useState(() =>
     editingVehicle
@@ -51,6 +60,8 @@ function RegisterVehicle({ editingVehicle, onCancelEdit, onSuccess }) {
         }
       : initialCost
   );
+  const [brandMode, setBrandMode] = useState("existing");
+  const [newBrand, setNewBrand] = useState("");
   const [image, setImage] = useState(null);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
@@ -75,14 +86,28 @@ function RegisterVehicle({ editingVehicle, onCancelEdit, onSuccess }) {
         cost_per_hour: Number(costData.cost_per_hour),
         cost_per_day: Number(costData.cost_per_day),
       };
+      let brandId = formData.brand_id;
+
+      if (brandMode === "new") {
+        const brandResponse = await registerBrand({ brand: newBrand.trim() });
+        brandId = getBrandIdFromResponse(brandResponse);
+
+        if (!brandId) {
+          throw new Error("Brand was created, but backend did not return the brand id.");
+        }
+      }
 
       if (isEditing) {
-        await updateVehicle(editingVehicle.vehicle_id, {
+        const vehiclePayload = new FormData();
+        Object.entries({
           ...formData,
-          brand_id: Number(formData.brand_id),
+          brand_id: Number(brandId),
           doors: Number(formData.doors),
           production_year: Number(formData.production_year),
-        });
+        }).forEach(([key, value]) => vehiclePayload.append(key, value));
+        if (image) vehiclePayload.append("image", image);
+
+        await updateVehicle(editingVehicle.vehicle_id, vehiclePayload);
 
         await updateVehicleCost(editingVehicle.cost_id, costPayload);
         setMessage("Vehicle updated.");
@@ -95,12 +120,14 @@ function RegisterVehicle({ editingVehicle, onCancelEdit, onSuccess }) {
         }
 
         const payload = new FormData();
-        Object.entries({ ...formData, cost_id: costId }).forEach(([key, value]) => payload.append(key, value));
+        Object.entries({ ...formData, brand_id: brandId, cost_id: costId }).forEach(([key, value]) => payload.append(key, value));
         if (image) payload.append("image", image);
 
         await registerVehicle(payload);
         setFormData(initialForm);
         setCostData(initialCost);
+        setBrandMode("existing");
+        setNewBrand("");
         setImage(null);
         event.target.reset();
         setMessage("Vehicle registered.");
@@ -123,8 +150,26 @@ function RegisterVehicle({ editingVehicle, onCancelEdit, onSuccess }) {
         </p>
       </div>
 
+      <div className="mb-4 grid gap-3 md:grid-cols-[180px_1fr]">
+        <select className="rounded-lg border border-slate-300 px-3 py-2 text-sm" value={brandMode} onChange={(event) => setBrandMode(event.target.value)}>
+          <option value="existing">Existing brand</option>
+          <option value="new">New brand</option>
+        </select>
+        {brandMode === "existing" ? (
+          <select className="rounded-lg border border-slate-300 px-3 py-2 text-sm" name="brand_id" value={formData.brand_id} onChange={updateField} required>
+            <option value="">Choose brand</option>
+            {brands.map((brand) => (
+              <option key={brand.brand_id} value={brand.brand_id}>
+                {brand.brand}
+              </option>
+            ))}
+          </select>
+        ) : (
+          <input className="rounded-lg border border-slate-300 px-3 py-2 text-sm" placeholder="New brand name" value={newBrand} onChange={(event) => setNewBrand(event.target.value)} required />
+        )}
+      </div>
+
       <div className="grid gap-3 md:grid-cols-3">
-        <input className="rounded-lg border border-slate-300 px-3 py-2 text-sm" name="brand_id" type="number" placeholder="Brand ID" value={formData.brand_id} onChange={updateField} required />
         <input className="rounded-lg border border-slate-300 px-3 py-2 text-sm" name="model" placeholder="Model" value={formData.model} onChange={updateField} required />
         <input className="rounded-lg border border-slate-300 px-3 py-2 text-sm" name="vehicle_type" placeholder="Vehicle type" value={formData.vehicle_type} onChange={updateField} required />
         <select className="rounded-lg border border-slate-300 px-3 py-2 text-sm" name="transmission" value={formData.transmission} onChange={updateField} required>
@@ -144,9 +189,7 @@ function RegisterVehicle({ editingVehicle, onCancelEdit, onSuccess }) {
           <option value="Hybrid">Hybrid</option>
           <option value="Electric">Electric</option>
         </select>
-        {!isEditing ? (
-          <input className="rounded-lg border border-slate-300 px-3 py-2 text-sm md:col-span-3" type="file" accept="image/*" onChange={(event) => setImage(event.target.files?.[0] || null)} />
-        ) : null}
+        <input className="rounded-lg border border-slate-300 px-3 py-2 text-sm md:col-span-3" type="file" accept="image/*" onChange={(event) => setImage(event.target.files?.[0] || null)} />
       </div>
 
       {error ? <p className="mt-3 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p> : null}

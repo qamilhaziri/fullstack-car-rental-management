@@ -26,9 +26,32 @@ function Dashboard() {
 
   return (
     <div className="space-y-6">
-      <section>
-        <h2 className="text-2xl font-semibold text-slate-950">Available vehicles</h2>
-        <p className="text-sm text-slate-500">Vehicles ready to rent today.</p>
+      <section className="rounded-2xl bg-gradient-to-r from-slate-950 via-blue-950 to-slate-900 p-6 text-white shadow-sm">
+        <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+          <div>
+            <p className="text-sm font-medium uppercase tracking-wide text-emerald-300">Dashboard</p>
+            <h2 className="mt-2 text-3xl font-semibold">Available vehicles</h2>
+            <p className="mt-2 text-sm text-slate-300">Vehicles ready to rent today.</p>
+          </div>
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+            <div className="rounded-xl border border-white/10 bg-white/10 px-4 py-3">
+              <p className="text-2xl font-semibold">{vehicles.length}</p>
+              <p className="text-xs text-slate-300">Available</p>
+            </div>
+            <div className="rounded-xl border border-white/10 bg-white/10 px-4 py-3">
+              <p className="text-2xl font-semibold">
+                {new Set(vehicles.map((vehicle) => vehicle.brand).filter(Boolean)).size}
+              </p>
+              <p className="text-xs text-slate-300">Brands</p>
+            </div>
+            <div className="rounded-xl border border-white/10 bg-white/10 px-4 py-3">
+              <p className="text-2xl font-semibold">
+                {vehicles.length ? Math.min(...vehicles.map((vehicle) => Number(vehicle.cost_per_day || 0)).filter(Boolean)) : 0}
+              </p>
+              <p className="text-xs text-slate-300">Min/day</p>
+            </div>
+          </div>
+        </div>
       </section>
 
       {error ? <p className="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">{error}</p> : null}
