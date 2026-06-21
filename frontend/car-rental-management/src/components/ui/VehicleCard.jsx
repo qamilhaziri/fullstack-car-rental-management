@@ -1,5 +1,16 @@
 import { vehicleImageUrl } from "../../api/vehicleApi";
 
+const formatYear = (value) => {
+  if (!value) return "-";
+
+  const date = new Date(value);
+  if (!Number.isNaN(date.getTime())) {
+    return date.getFullYear();
+  }
+
+  return value;
+};
+
 function VehicleCard({ vehicle, actions }) {
   const title = `${vehicle.brand || "Vehicle"} ${vehicle.model || ""}`.trim();
 
@@ -35,7 +46,7 @@ function VehicleCard({ vehicle, actions }) {
           </div>
           <div>
             <p className="text-slate-500">Year</p>
-            <p className="font-medium text-slate-800">{vehicle.production_year || "-"}</p>
+            <p className="font-medium text-slate-800">{formatYear(vehicle.production_year)}</p>
           </div>
           <div>
             <p className="text-slate-500">Per hour</p>

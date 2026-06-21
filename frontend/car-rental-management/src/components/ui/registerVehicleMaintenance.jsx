@@ -4,10 +4,10 @@ import { registerVehicleMaintenance } from "../../api/vehicleMaintenanceApi";
 function RegisterVehicleMaintenance({ vehicles = [], selectedVehicleId = "", onSuccess }) {
   const [vehicleId, setVehicleId] = useState(selectedVehicleId);
   const [formData, setFormData] = useState({
-    maintenance_type: "",
-    description: "",
-    maintenance_date: new Date().toISOString().slice(0, 10),
-    cost: "",
+    service_type: "",
+    other_info: "",
+    service_date: new Date().toISOString().slice(0, 10),
+    service_cost: "",
   });
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
@@ -26,7 +26,7 @@ function RegisterVehicleMaintenance({ vehicles = [], selectedVehicleId = "", onS
     try {
       await registerVehicleMaintenance(vehicleId, {
         ...formData,
-        cost: formData.cost ? Number(formData.cost) : null,
+        service_cost: formData.service_cost ? Number(formData.service_cost) : null,
       });
       setMessage("Maintenance registered.");
       onSuccess?.();
@@ -49,10 +49,10 @@ function RegisterVehicleMaintenance({ vehicles = [], selectedVehicleId = "", onS
             </option>
           ))}
         </select>
-        <input className="rounded-lg border border-slate-300 px-3 py-2 text-sm" name="maintenance_type" placeholder="Maintenance type" value={formData.maintenance_type} onChange={updateField} required />
-        <input className="rounded-lg border border-slate-300 px-3 py-2 text-sm" name="maintenance_date" type="date" value={formData.maintenance_date} onChange={updateField} required />
-        <input className="rounded-lg border border-slate-300 px-3 py-2 text-sm" name="cost" type="number" step="0.01" placeholder="Cost" value={formData.cost} onChange={updateField} />
-        <textarea className="rounded-lg border border-slate-300 px-3 py-2 text-sm md:col-span-2" name="description" placeholder="Description" rows="3" value={formData.description} onChange={updateField} />
+        <input className="rounded-lg border border-slate-300 px-3 py-2 text-sm" name="service_type" placeholder="Maintenance type" value={formData.service_type} onChange={updateField} required />
+        <input className="rounded-lg border border-slate-300 px-3 py-2 text-sm" name="service_date" type="date" value={formData.service_date} onChange={updateField} required />
+        <input className="rounded-lg border border-slate-300 px-3 py-2 text-sm" name="service_cost" type="number" step="0.01" placeholder="Cost" value={formData.service_cost} onChange={updateField} />
+        <textarea className="rounded-lg border border-slate-300 px-3 py-2 text-sm md:col-span-2" name="other_info" placeholder="Description" rows="3" value={formData.other_info} onChange={updateField} />
       </div>
       {error ? <p className="mt-3 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p> : null}
       {message ? <p className="mt-3 rounded-lg bg-green-50 px-3 py-2 text-sm text-green-700">{message}</p> : null}

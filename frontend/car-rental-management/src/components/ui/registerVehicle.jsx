@@ -36,6 +36,17 @@ const getBrandIdFromResponse = (response) => {
   return "";
 };
 
+const toDateInputValue = (value) => {
+  if (!value) return "";
+
+  const date = new Date(value);
+  if (!Number.isNaN(date.getTime())) {
+    return date.toISOString().slice(0, 10);
+  }
+
+  return value;
+};
+
 function RegisterVehicle({ brands = [], editingVehicle, onCancelEdit, onSuccess }) {
   const isEditing = Boolean(editingVehicle?.vehicle_id);
   const [formData, setFormData] = useState(() =>
@@ -47,7 +58,7 @@ function RegisterVehicle({ brands = [], editingVehicle, onCancelEdit, onSuccess 
           transmission: editingVehicle.transmission || "",
           color: editingVehicle.color || "",
           doors: editingVehicle.doors || "",
-          production_year: editingVehicle.production_year || "",
+          production_year: toDateInputValue(editingVehicle.production_year),
           fuel_type: editingVehicle.fuel_type || "",
         }
       : initialForm
@@ -103,7 +114,6 @@ function RegisterVehicle({ brands = [], editingVehicle, onCancelEdit, onSuccess 
           ...formData,
           brand_id: Number(brandId),
           doors: Number(formData.doors),
-          production_year: Number(formData.production_year),
         }).forEach(([key, value]) => vehiclePayload.append(key, value));
         if (image) vehiclePayload.append("image", image);
 
@@ -181,7 +191,10 @@ function RegisterVehicle({ brands = [], editingVehicle, onCancelEdit, onSuccess 
         <input className="rounded-lg border border-slate-300 px-3 py-2 text-sm" name="cost_per_hour" type="number" step="0.01" placeholder="Cost per hour" value={costData.cost_per_hour} onChange={updateCostField} required />
         <input className="rounded-lg border border-slate-300 px-3 py-2 text-sm" name="cost_per_day" type="number" step="0.01" placeholder="Cost per day" value={costData.cost_per_day} onChange={updateCostField} required />
         <input className="rounded-lg border border-slate-300 px-3 py-2 text-sm" name="doors" type="number" placeholder="Doors" value={formData.doors} onChange={updateField} required />
-        <input className="rounded-lg border border-slate-300 px-3 py-2 text-sm" name="production_year" type="number" placeholder="Production year" value={formData.production_year} onChange={updateField} required />
+        <label className="text-sm text-slate-600">
+          Production date
+          <input className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm" name="production_year" type="date" value={formData.production_year} onChange={updateField} required />
+        </label>
         <select className="rounded-lg border border-slate-300 px-3 py-2 text-sm" name="fuel_type" value={formData.fuel_type} onChange={updateField} required>
           <option value="">Fuel type</option>
           <option value="Diesel">Diesel</option>

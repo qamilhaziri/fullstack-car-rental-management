@@ -195,11 +195,11 @@ function VehiclePage() {
               <div className="divide-y divide-slate-100">
                 {maintenanceRecords.map((maintenance, index) => (
                   <div key={maintenance.vmaintenance_id || index} className="p-4 text-sm">
-                    <p className="font-medium text-slate-950">{maintenance.maintenance_type || maintenance.type || "Maintenance"}</p>
-                    <p className="mt-1 text-slate-600">{maintenance.description || maintenance.other_info || "No description"}</p>
+                    <p className="font-medium text-slate-950">{maintenance.service_type || maintenance.type || "Maintenance"}</p>
+                    <p className="mt-1 text-slate-600">{maintenance.other_info || maintenance.other_info || "No description"}</p>
                     <p className="mt-2 text-xs text-slate-500">
-                      Date: {maintenance.maintenance_date ? new Date(maintenance.maintenance_date).toLocaleDateString() : "-"}
-                      {maintenance.cost ? ` · Cost: ${maintenance.cost} EUR` : ""}
+                      Date: {maintenance.service_date ? new Date(maintenance.service_date).toLocaleDateString() : "-"}
+                      {maintenance.service_cost ? ` · Cost: ${maintenance.service_cost} EUR` : ""}
                     </p>
                   </div>
                 ))}
