@@ -19,6 +19,7 @@ function VehiclePage() {
   const [clients, setClients] = useState([]);
   const [activeTab, setActiveTab] = useState("vehicle");
   const [selectedVehicleId, setSelectedVehicleId] = useState("");
+  const [editingVehicle, setEditingVehicle] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -62,8 +63,19 @@ function VehiclePage() {
 
   const openTab = (tab, vehicleId = "") => {
     setSelectedVehicleId(vehicleId);
+    if (tab !== "vehicle") setEditingVehicle(null);
     setActiveTab(tab);
     window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const startEdit = (vehicle) => {
+    setEditingVehicle(vehicle);
+    setActiveTab("vehicle");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const clearEdit = () => {
+    setEditingVehicle(null);
   };
 
   return (
@@ -91,7 +103,17 @@ function VehiclePage() {
         </div>
       </div>
 
-      {activeTab === "vehicle" ? <RegisterVehicle onSuccess={loadData} /> : null}
+      {activeTab === "vehicle" ? (
+        <RegisterVehicle
+          key={editingVehicle?.vehicle_id || "new-vehicle"}
+          editingVehicle={editingVehicle}
+          onCancelEdit={clearEdit}
+          onSuccess={() => {
+            clearEdit();
+            loadData();
+          }}
+        />
+      ) : null}
       {activeTab === "damage" ? (
         <RegisterVehicleDamage clients={clients} vehicles={vehicles} selectedVehicleId={selectedVehicleId} onSuccess={loadData} />
       ) : null}
@@ -111,6 +133,9 @@ function VehiclePage() {
               <>
                 <button type="button" onClick={() => navigate(`/rents/register/${vehicle.vehicle_id}`)} className="rounded-lg bg-blue-600 px-3 py-2 text-sm font-medium text-white hover:bg-blue-700">
                   Rent
+                </button>
+                <button type="button" onClick={() => startEdit(vehicle)} className="rounded-lg border border-blue-200 bg-blue-50 px-3 py-2 text-sm font-medium text-blue-700 hover:bg-blue-100">
+                  Edit
                 </button>
                 <button type="button" onClick={() => openTab("damage", vehicle.vehicle_id)} className="rounded-lg border border-slate-300 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100">
                   Damage

@@ -5,7 +5,7 @@ import Sidebar from "./Sidebar";
 
 function DashboardLayout() {
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 md:flex">
+    <div className="min-h-screen bg-slate-100 text-slate-900 md:flex">
       <Sidebar />
       <div className="flex min-h-screen flex-1 flex-col">
         <Navbar />

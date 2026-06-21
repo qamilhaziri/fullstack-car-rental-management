@@ -9,10 +9,10 @@ const links = [
 
 function Sidebar() {
   return (
-    <aside className="w-full border-b border-slate-200 bg-white px-4 py-4 md:min-h-screen md:w-64 md:border-b-0 md:border-r">
-      <div className="mb-6">
-        <p className="text-lg font-semibold text-slate-900">Car Rental</p>
-        <p className="text-sm text-slate-500">Management</p>
+    <aside className="w-full border-b border-slate-200 bg-slate-950 px-4 py-4 text-white md:min-h-screen md:w-64 md:border-b-0 md:border-r md:border-slate-800">
+      <div className="mb-8 rounded-xl bg-white/10 p-4">
+        <p className="text-lg font-semibold">Car Rental</p>
+        <p className="text-sm text-slate-300">Management</p>
       </div>
 
       <nav className="flex gap-2 overflow-x-auto md:flex-col md:overflow-visible">
@@ -25,7 +25,7 @@ function Sidebar() {
                 "rounded-lg px-3 py-2 text-sm font-medium transition",
                 isActive
                   ? "bg-blue-600 text-white"
-                  : "text-slate-600 hover:bg-slate-100 hover:text-slate-950",
+                  : "text-slate-300 hover:bg-white/10 hover:text-white",
               ].join(" ")
             }
           >

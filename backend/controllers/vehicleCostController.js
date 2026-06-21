@@ -2,10 +2,11 @@ import vehicleCostModel from "../models/vehicleCostModel.js";
 
 export const registerVehicleCost = async (req,res) => {
    try{
-     await vehicleCostModel.registerVehicleCost(req.body);
+     const cost = await vehicleCostModel.registerVehicleCost(req.body);
      
      return res.status(201).json({
-      message: "Vehicle cost inserted successfully"
+      message: "Vehicle cost inserted successfully",
+      cost
     });
 
    }catch(error){

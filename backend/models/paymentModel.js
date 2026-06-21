@@ -5,7 +5,7 @@ const paymentModel = {
     registerPayment: async (payment) => {
         const { rent_id, payment_amount, date_payment } = payment;
 
-        await db.raw("Call registerPayment(?,?,?)",[
+        await db.raw("Call register_payment(?,?,?)",[
           rent_id, payment_amount, date_payment
         ])
     },

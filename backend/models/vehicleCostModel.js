@@ -5,9 +5,11 @@ const vehicleModel = {
     registerVehicleCost: async (vehicleCost) => {
         const { cost_per_hour, cost_per_day } = vehicleCost;
 
-        await db.raw("Call register_vehiclecost(?,?)",[
-            cost_per_hour, cost_per_day
-        ])
+        const [cost] = await db("vehicle_cost")
+            .insert({ cost_per_hour, cost_per_day })
+            .returning("*");
+
+        return cost;
     }
     ,
 

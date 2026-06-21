@@ -1,8 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
 import { getAllClients } from "../api/clientApi";
+import { getPaymentByRentId } from "../api/paymentApi";
 import { getRentsByVehicleId, updateRent } from "../api/rentApi";
 import { getAllVehicles, getAllVehiclesAvailable } from "../api/vehicleApi";
+import RegisterPayment from "../components/ui/registerPayment";
 import RegisterRent from "../components/ui/registerRent";
 
 const formatDate = (value) => {
@@ -16,6 +18,8 @@ function RentPage() {
   const [vehicles, setVehicles] = useState([]);
   const [availableVehicles, setAvailableVehicles] = useState([]);
   const [rents, setRents] = useState([]);
+  const [paymentsByRent, setPaymentsByRent] = useState({});
+  const [paymentRent, setPaymentRent] = useState(null);
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -42,10 +46,23 @@ function RentPage() {
         })
       );
 
+      const allRents = rentGroups.flat();
+      const paymentEntries = await Promise.all(
+        allRents.map(async (rent) => {
+          try {
+            const paymentData = await getPaymentByRentId(rent.rent_id);
+            return [rent.rent_id, Array.isArray(paymentData) ? paymentData : []];
+          } catch {
+            return [rent.rent_id, []];
+          }
+        })
+      );
+
       setClients(Array.isArray(clientData) ? clientData : []);
       setVehicles(allVehicles);
       setAvailableVehicles(Array.isArray(availableData) ? availableData : []);
-      setRents(rentGroups.flat());
+      setRents(allRents);
+      setPaymentsByRent(Object.fromEntries(paymentEntries));
     } catch (err) {
       setError(err.message);
     } finally {
@@ -76,11 +93,24 @@ function RentPage() {
           })
         );
 
+        const allRents = rentGroups.flat();
+        const paymentEntries = await Promise.all(
+          allRents.map(async (rent) => {
+            try {
+              const paymentData = await getPaymentByRentId(rent.rent_id);
+              return [rent.rent_id, Array.isArray(paymentData) ? paymentData : []];
+            } catch {
+              return [rent.rent_id, []];
+            }
+          })
+        );
+
         if (!ignore) {
           setClients(Array.isArray(clientData) ? clientData : []);
           setVehicles(allVehicles);
           setAvailableVehicles(Array.isArray(availableData) ? availableData : []);
-          setRents(rentGroups.flat());
+          setRents(allRents);
+          setPaymentsByRent(Object.fromEntries(paymentEntries));
         }
       } catch (err) {
         if (!ignore) setError(err.message);
@@ -156,8 +186,22 @@ function RentPage() {
         clients={clients}
         vehicles={availableVehicles}
         selectedVehicleId={vehicleId || ""}
-        onSuccess={loadData}
+        onSuccess={() => {
+          setPaymentRent(null);
+          loadData();
+        }}
       />
+
+      {paymentRent ? (
+        <RegisterPayment
+          rent={paymentRent}
+          onCancel={() => setPaymentRent(null)}
+          onSuccess={() => {
+            setPaymentRent(null);
+            loadData();
+          }}
+        />
+      ) : null}
 
       {error ? <p className="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">{error}</p> : null}
       {loading ? <p className="text-sm text-slate-500">Loading rents...</p> : null}
@@ -171,6 +215,7 @@ function RentPage() {
                 <th className="px-4 py-3 font-medium">Client</th>
                 <th className="px-4 py-3 font-medium">Rented</th>
                 <th className="px-4 py-3 font-medium">Return due</th>
+                <th className="px-4 py-3 font-medium">Paid</th>
                 <th className="px-4 py-3 font-medium">Status</th>
                 <th className="px-4 py-3 font-medium">Action</th>
               </tr>
@@ -179,6 +224,8 @@ function RentPage() {
               {filteredRents.map((rent) => {
                 const client = clientMap[rent.client_id];
                 const vehicle = vehicleMap[rent.vehicle_id] || rent;
+                const payments = paymentsByRent[rent.rent_id] || [];
+                const paidAmount = payments.reduce((total, payment) => total + Number(payment.payment_amount || 0), 0);
                 return (
                   <tr key={rent.rent_id}>
                     <td className="px-4 py-3 font-medium text-slate-950">
@@ -189,19 +236,25 @@ function RentPage() {
                     </td>
                     <td className="px-4 py-3 text-slate-600">{formatDate(rent.date_rented)}</td>
                     <td className="px-4 py-3 text-slate-600">{formatDate(rent.date_to_return)}</td>
+                    <td className="px-4 py-3 font-medium text-slate-700">{paidAmount.toFixed(2)} EUR</td>
                     <td className="px-4 py-3">
                       <span className={rent.is_returned ? "rounded-full bg-slate-100 px-2 py-1 text-xs text-slate-600" : "rounded-full bg-green-50 px-2 py-1 text-xs text-green-700"}>
                         {rent.is_returned ? "Returned" : "Active"}
                       </span>
                     </td>
                     <td className="px-4 py-3">
-                      {!rent.is_returned ? (
-                        <button type="button" onClick={() => markReturned(rent)} className="rounded-lg border border-slate-300 px-3 py-2 text-xs font-medium text-slate-700 hover:bg-slate-100">
-                          Mark returned
+                      <div className="flex flex-wrap gap-2">
+                        <button type="button" onClick={() => setPaymentRent(rent)} className="rounded-lg border border-blue-200 bg-blue-50 px-3 py-2 text-xs font-medium text-blue-700 hover:bg-blue-100">
+                          Payment
                         </button>
-                      ) : (
-                        <span className="text-xs text-slate-400">{formatDate(rent.date_returned)}</span>
-                      )}
+                        {!rent.is_returned ? (
+                          <button type="button" onClick={() => markReturned(rent)} className="rounded-lg border border-slate-300 px-3 py-2 text-xs font-medium text-slate-700 hover:bg-slate-100">
+                            Mark returned
+                          </button>
+                        ) : (
+                          <span className="py-2 text-xs text-slate-400">{formatDate(rent.date_returned)}</span>
+                        )}
+                      </div>
                     </td>
                   </tr>
                 );

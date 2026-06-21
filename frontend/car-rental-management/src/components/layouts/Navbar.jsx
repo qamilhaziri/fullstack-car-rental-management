@@ -13,7 +13,7 @@ function Navbar() {
   const userName = user?.fullName || user?.full_name || (user?.user_id ? `Admin #${user.user_id}` : "Admin");
 
   return (
-    <header className="flex flex-col gap-3 border-b border-slate-200 bg-white px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
+    <header className="flex flex-col gap-3 border-b border-slate-200 bg-white/90 px-5 py-4 shadow-sm backdrop-blur sm:flex-row sm:items-center sm:justify-between">
       <div>
         <p className="text-sm text-slate-500">Welcome back</p>
         <h1 className="text-xl font-semibold text-slate-950">{userName}</h1>
