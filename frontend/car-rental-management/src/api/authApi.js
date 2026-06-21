@@ -16,13 +16,12 @@ export const login = async (data) => {
     }
 }
 
-export const logout = async (data) => {
+export const logout = async () => {
     const response = await api.post("/auth/logout")
     return response.data;
 }
 
-export const getCurrentUser = async (data) => {
+export const getCurrentUser = async () => {
     const response = await api.post("/auth/me")
     return response.data;
 }
-

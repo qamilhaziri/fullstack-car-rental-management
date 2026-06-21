@@ -1,20 +1,17 @@
-import { useEffect } from "react";
-import { createContext, useState } from "react";
-import {getCurrentUser,logout} from "../api/authApi.js"
+import { useEffect, useState } from "react";
+import { getCurrentUser, logout } from "../api/authApi.js";
+import { AuthContext } from "./authContextValue.js";
 
-export const AuthContext = createContext();
+export const AuthProvider = ({ children }) => {
 
-export const AuthProvider = ({children}) => {
-
-    const[user,setUser] = useState(null);
-    const[loading,setLoading] = useState(true);
+    const [user, setUser] = useState(null);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const loadUser = async () => {
             try{
                 const res = await getCurrentUser();
                 setUser(res.user);
-                console.log(res)
             }catch{
                 setUser(null);
             }finally{
