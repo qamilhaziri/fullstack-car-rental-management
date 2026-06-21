@@ -1,4 +1,4 @@
-import { getAllVehicles, getVehicleById, registerVehicle, removeVehicle, updateVehicle,getAllVehiclesAvailable } from "../controllers/vehicleController.js";
+import { getAllVehicles, getVehicleById, registerVehicle, removeVehicle, updateVehicle,getAllVehiclesAvailable, getVehicleImage } from "../controllers/vehicleController.js";
 import express from "express"
 import upload from "../middleware/multer.js";
 
@@ -11,6 +11,8 @@ vehicleRouter.get("/",getAllVehicles);
 vehicleRouter.get("/available",getAllVehiclesAvailable);
 
 vehicleRouter.get("/:id",getVehicleById);
+
+vehicleRouter.get("/uploads/:filename",getVehicleImage)
 
 vehicleRouter.patch("/:id",updateVehicle);
 

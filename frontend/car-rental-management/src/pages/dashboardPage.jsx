@@ -1,6 +1,6 @@
 import { useAuth } from "../hooks/useAuth";
 import { useNavigate } from "react-router-dom";
-
+import VehicleCard from "../components/ui/VehicleCard";
 function Dashboard() {
 
     const { user, logoutHandle } = useAuth();
@@ -18,10 +18,10 @@ function Dashboard() {
 
             <p>Welcome!</p>
 
-            {/* nëse ke user */}
-            {user.fullname && (
+           
+            {user.fullName && (
                 <p>
-                    Logged in as: <b>{user.email}</b>
+                    Logged in as: <b>{user.fullName}</b>
                 </p>
             )}
 
@@ -29,6 +29,7 @@ function Dashboard() {
                 Logout
             </button>
 
+  
         </div>
     );
 }

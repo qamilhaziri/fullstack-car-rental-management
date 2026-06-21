@@ -7,15 +7,18 @@ export const AuthContext = createContext();
 export const AuthProvider = ({children}) => {
 
     const[user,setUser] = useState(null);
+    const[loading,setLoading] = useState(true);
 
     useEffect(() => {
         const loadUser = async () => {
             try{
                 const res = await getCurrentUser();
                 setUser(res.user);
-
+                console.log(res)
             }catch{
                 setUser(null);
+            }finally{
+                setLoading(false);
             }
         }
         loadUser();
@@ -35,6 +38,7 @@ export const AuthProvider = ({children}) => {
             value={{
                 user,
                 setUser,
+                loading,
                 logoutHandle
             }}
         >

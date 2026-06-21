@@ -1,4 +1,5 @@
 import vehicleModel from "../models/vehicleModel.js";
+import path from "path";
 
 export const registerVehicle = async (req,res) => {
    try{
@@ -51,6 +52,12 @@ export const getAllVehiclesAvailable = async (req,res) => {
    }catch(error){
         res.status(500).json({error: error.message});
    }
+}
+
+export const getVehicleImage = (req,res) => {
+   const filePath = path.join(process.cwd(),"public","uploads",req.params.filename);
+
+   res.sendFile(filePath);
 }
 
 export const updateVehicle = async(req,res) => {

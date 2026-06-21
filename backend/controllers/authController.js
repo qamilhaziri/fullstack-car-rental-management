@@ -23,7 +23,8 @@ export const login = async (req,res) => {
     }
 
     const token = generateAccessToken({
-        user_id: user.admin_id
+        user_id: user.admin_id,
+        fullName: user.full_name
     });
 
     res.cookie(
@@ -33,7 +34,7 @@ export const login = async (req,res) => {
             httpOnly:true,
             secure:false,
             sameSite:"strict",
-            maxAge: 2700
+            maxAge: 2700 * 1000
         }
     );
 

@@ -33,7 +33,7 @@ app.use("/api/vehicleCost",authMiddleware,vehicleCostRouter)
 app.use("/api/vehicleDamages",authMiddleware,vehicleDamageRouter)
 app.use("/api/rent",authMiddleware,rentRouter)
 app.use("/api/payment",authMiddleware,paymentRouter)
-app.use("/uploads",express.static("public/uploads"))
+
 
 app.listen(PORT, () => {
       console.log('The server is up and running: ' , 'http://localhost:5005')
