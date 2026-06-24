@@ -34,8 +34,8 @@ export const login = async (req,res) => {
         token, 
         {
             httpOnly:true,
-            secure:false,
-            sameSite:"strict",
+            secure:true,
+            sameSite:"none",
             maxAge: 2700 * 1000
         }
     );
