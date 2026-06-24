@@ -4,6 +4,7 @@ import { getAllClients } from "../api/clientApi";
 import { getPaymentByRentId } from "../api/paymentApi";
 import { getRentsByVehicleId, updateRent } from "../api/rentApi";
 import { getAllVehicles, getAllVehiclesAvailable } from "../api/vehicleApi";
+import Pagination from "../components/ui/Pagination";
 import RegisterPayment from "../components/ui/registerPayment";
 import RegisterRent from "../components/ui/registerRent";
 
@@ -11,6 +12,7 @@ const formatDate = (value) => {
   if (!value) return "-";
   return new Date(value).toLocaleDateString();
 };
+const pageSize = 10;
 
 function RentPage() {
   const { vehicleId } = useParams();
@@ -21,6 +23,7 @@ function RentPage() {
   const [paymentsByRent, setPaymentsByRent] = useState({});
   const [paymentRent, setPaymentRent] = useState(null);
   const [search, setSearch] = useState("");
+  const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -155,12 +158,19 @@ function RentPage() {
     });
   }, [clientMap, rents, search, vehicleMap]);
 
+  const totalPages = Math.max(1, Math.ceil(filteredRents.length / pageSize));
+  const currentPage = Math.min(page, totalPages);
+  const paginatedRents = filteredRents.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+
   const markReturned = async (rent) => {
     try {
+      const returnedDate = new Date().toISOString().slice(0, 10);
+
       await updateRent(rent.rent_id, {
         is_returned: true,
-        date_returned: new Date().toISOString().slice(0, 10),
+        date_returned: returnedDate,
       });
+
       loadData();
     } catch (err) {
       setError(err.message);
@@ -178,7 +188,10 @@ function RentPage() {
           className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm sm:w-80"
           placeholder="Search rents..."
           value={search}
-          onChange={(event) => setSearch(event.target.value)}
+          onChange={(event) => {
+            setSearch(event.target.value);
+            setPage(1);
+          }}
         />
       </section>
 
@@ -215,13 +228,14 @@ function RentPage() {
                 <th className="px-4 py-3 font-medium">Client</th>
                 <th className="px-4 py-3 font-medium">Rented</th>
                 <th className="px-4 py-3 font-medium">Return due</th>
+                <th className="px-4 py-3 font-medium">Returned</th>
                 <th className="px-4 py-3 font-medium">Paid</th>
                 <th className="px-4 py-3 font-medium">Status</th>
                 <th className="px-4 py-3 font-medium">Action</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
-              {filteredRents.map((rent) => {
+              {paginatedRents.map((rent) => {
                 const client = clientMap[rent.client_id];
                 const vehicle = vehicleMap[rent.vehicle_id] || rent;
                 const payments = paymentsByRent[rent.rent_id] || [];
@@ -236,6 +250,7 @@ function RentPage() {
                     </td>
                     <td className="px-4 py-3 text-slate-600">{formatDate(rent.date_rented)}</td>
                     <td className="px-4 py-3 text-slate-600">{formatDate(rent.date_to_return)}</td>
+                    <td className="px-4 py-3 text-slate-600">{formatDate(rent.date_returned)}</td>
                     <td className="px-4 py-3 font-medium text-slate-700">{paidAmount.toFixed(2)} EUR</td>
                     <td className="px-4 py-3">
                       <span className={rent.is_returned ? "rounded-full bg-slate-100 px-2 py-1 text-xs text-slate-600" : "rounded-full bg-green-50 px-2 py-1 text-xs text-green-700"}>
@@ -252,7 +267,7 @@ function RentPage() {
                             Mark returned
                           </button>
                         ) : (
-                          <span className="py-2 text-xs text-slate-400">{formatDate(rent.date_returned)}</span>
+                          <span className="py-2 text-xs text-slate-400">Saved</span>
                         )}
                       </div>
                     </td>
@@ -266,6 +281,8 @@ function RentPage() {
           <p className="px-4 py-6 text-center text-sm text-slate-500">No rents found.</p>
         ) : null}
       </div>
+
+      <Pagination page={currentPage} pageSize={pageSize} totalItems={filteredRents.length} onPageChange={setPage} />
     </div>
   );
 }

@@ -16,11 +16,14 @@ import authRouter from "./routes/authRoute.js";
 import brandRouter from "./routes/brandRoute.js";
 import authMiddleware from "./middleware/authMiddleware.js";
 import {generalLimiter} from "./middleware/rateLimit.js";
+import httpLogger from "./middleware/httpLogger.js";
+import logger from "./utils/logger.js";
 
 
 const app = express()
 const PORT = 5005
-console.log(process.env.CLIENT_URL)
+
+app.use(httpLogger)
 app.use(express.json());
 app.use(cookieParser());
 app.use(cors({
@@ -34,12 +37,6 @@ app.use(cors({
  }));
 app.use(generalLimiter)
 
-app.use((error,req,res,next) => {
-      res.status(500).json({
-            message: "Internal server error"
-      })
-})
-
 app.use("/api/auth",authRouter);
 app.use("/api/brands",authMiddleware,generalLimiter,brandRouter)
 app.use("/api/vehicles",authMiddleware,vehicleRouter)
@@ -50,7 +47,13 @@ app.use("/api/vehicleDamages",authMiddleware,vehicleDamageRouter)
 app.use("/api/rent",authMiddleware,rentRouter)
 app.use("/api/payment",authMiddleware,paymentRouter)
 
+app.use((error,req,res,next) => {
+      req.log?.error({ err: error }, "Unhandled application error")
+      res.status(500).json({
+            message: "Internal server error"
+      })
+})
 
 app.listen(PORT, () => {
-      console.log('The server is up and running: ' , 'http://localhost:5005')
+      logger.info({ port: PORT, clientUrl: process.env.CLIENT_URL }, "Server started")
 })

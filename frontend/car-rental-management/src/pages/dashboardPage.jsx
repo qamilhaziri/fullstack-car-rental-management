@@ -1,11 +1,15 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getAllVehiclesAvailable } from "../api/vehicleApi";
+import Pagination from "../components/ui/Pagination";
 import VehicleCard from "../components/ui/VehicleCard";
+
+const pageSize = 15;
 
 function Dashboard() {
   const navigate = useNavigate();
   const [vehicles, setVehicles] = useState([]);
+  const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -23,6 +27,10 @@ function Dashboard() {
 
     loadVehicles();
   }, []);
+
+  const totalPages = Math.max(1, Math.ceil(vehicles.length / pageSize));
+  const currentPage = Math.min(page, totalPages);
+  const paginatedVehicles = vehicles.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
   return (
     <div className="space-y-6">
@@ -64,7 +72,7 @@ function Dashboard() {
       ) : null}
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-        {vehicles.map((vehicle) => (
+        {paginatedVehicles.map((vehicle) => (
           <VehicleCard
             key={vehicle.vehicle_id}
             vehicle={vehicle}
@@ -80,6 +88,10 @@ function Dashboard() {
           />
         ))}
       </div>
+
+      {!loading && vehicles.length > pageSize ? (
+        <Pagination page={currentPage} pageSize={pageSize} totalItems={vehicles.length} onPageChange={setPage} />
+      ) : null}
     </div>
   );
 }

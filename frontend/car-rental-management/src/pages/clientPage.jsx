@@ -1,10 +1,14 @@
 import { useEffect, useMemo, useState } from "react";
 import { getAllClients } from "../api/clientApi";
+import Pagination from "../components/ui/Pagination";
 import RegisterClient from "../components/ui/registerClient";
+
+const pageSize = 8;
 
 function ClientPage() {
   const [clients, setClients] = useState([]);
   const [search, setSearch] = useState("");
+  const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -62,6 +66,10 @@ function ClientPage() {
     );
   }, [clients, search]);
 
+  const totalPages = Math.max(1, Math.ceil(filteredClients.length / pageSize));
+  const currentPage = Math.min(page, totalPages);
+  const paginatedClients = filteredClients.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+
   return (
     <div className="space-y-6">
       <section className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
@@ -73,7 +81,10 @@ function ClientPage() {
           className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm sm:w-80"
           placeholder="Search clients..."
           value={search}
-          onChange={(event) => setSearch(event.target.value)}
+          onChange={(event) => {
+            setSearch(event.target.value);
+            setPage(1);
+          }}
         />
       </section>
 
@@ -95,7 +106,7 @@ function ClientPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
-              {filteredClients.map((client) => (
+              {paginatedClients.map((client) => (
                 <tr key={client.client_id}>
                   <td className="px-4 py-3 font-medium text-slate-950">
                     {client.client_name} {client.client_surname}
@@ -116,6 +127,8 @@ function ClientPage() {
           <p className="px-4 py-6 text-center text-sm text-slate-500">No clients found.</p>
         ) : null}
       </div>
+
+      <Pagination page={currentPage} pageSize={pageSize} totalItems={filteredClients.length} onPageChange={setPage} />
     </div>
   );
 }

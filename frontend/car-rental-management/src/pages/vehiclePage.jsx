@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getAllBrands } from "../api/brandApi";
 import { getAllClients } from "../api/clientApi";
@@ -8,6 +8,7 @@ import { getAllVehicles } from "../api/vehicleApi";
 import RegisterVehicle from "../components/ui/registerVehicle";
 import RegisterVehicleDamage from "../components/ui/registerVehicleDamage";
 import RegisterVehicleMaintenance from "../components/ui/registerVehicleMaintenance";
+import Pagination from "../components/ui/Pagination";
 import VehicleCard from "../components/ui/VehicleCard";
 
 const tabs = [
@@ -15,6 +16,7 @@ const tabs = [
   { key: "damage", label: "Register damage" },
   { key: "maintenance", label: "Register maintenance" },
 ];
+const pageSize = 6;
 
 function VehiclePage() {
   const navigate = useNavigate();
@@ -28,6 +30,9 @@ function VehiclePage() {
   const [damageRecords, setDamageRecords] = useState([]);
   const [maintenanceRecords, setMaintenanceRecords] = useState([]);
   const [infoLoading, setInfoLoading] = useState(false);
+  const [searchInput, setSearchInput] = useState("");
+  const [search, setSearch] = useState("");
+  const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -106,11 +111,66 @@ function VehiclePage() {
     }
   };
 
+  const filteredVehicles = useMemo(() => {
+    const value = search.toLowerCase().trim();
+    if (!value) return vehicles;
+
+    return vehicles.filter((vehicle) =>
+      [
+        vehicle.brand,
+        vehicle.model,
+        vehicle.vehicle_type,
+        vehicle.transmission,
+        vehicle.color,
+        vehicle.fuel_type,
+        vehicle.production_year,
+      ]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase()
+        .includes(value)
+    );
+  }, [search, vehicles]);
+
+  const totalPages = Math.max(1, Math.ceil(filteredVehicles.length / pageSize));
+  const currentPage = Math.min(page, totalPages);
+  const paginatedVehicles = filteredVehicles.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+
+  const handleSearch = (event) => {
+    event.preventDefault();
+    setSearch(searchInput);
+    setPage(1);
+  };
+
+  const resetSearch = () => {
+    setSearchInput("");
+    setSearch("");
+    setPage(1);
+  };
+
   return (
     <div className="space-y-6">
-      <section>
-        <h2 className="text-2xl font-semibold text-slate-950">Vehicles</h2>
-        <p className="text-sm text-slate-500">Manage vehicles, damage and maintenance.</p>
+      <section className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+        <div>
+          <h2 className="text-2xl font-semibold text-slate-950">Vehicles</h2>
+          <p className="text-sm text-slate-500">Manage vehicles, damage and maintenance.</p>
+        </div>
+        <form onSubmit={handleSearch} className="flex w-full flex-col gap-2 sm:flex-row lg:w-auto">
+          <input
+            className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm sm:w-80"
+            placeholder="Search vehicles..."
+            value={searchInput}
+            onChange={(event) => setSearchInput(event.target.value)}
+          />
+          <button type="submit" className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700">
+            Search
+          </button>
+          {search ? (
+            <button type="button" onClick={resetSearch} className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100">
+              Reset
+            </button>
+          ) : null}
+        </form>
       </section>
 
       <div className="rounded-lg border border-slate-200 bg-white p-2">
@@ -211,7 +271,7 @@ function VehiclePage() {
       ) : null}
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-        {vehicles.map((vehicle) => (
+        {paginatedVehicles.map((vehicle) => (
           <VehicleCard
             key={vehicle.vehicle_id}
             vehicle={vehicle}
@@ -237,6 +297,14 @@ function VehiclePage() {
           />
         ))}
       </div>
+
+      {!loading && filteredVehicles.length === 0 ? (
+        <div className="rounded-xl border border-dashed border-slate-300 bg-white p-8 text-center text-sm text-slate-500">
+          No vehicles found.
+        </div>
+      ) : null}
+
+      <Pagination page={currentPage} pageSize={pageSize} totalItems={filteredVehicles.length} onPageChange={setPage} />
     </div>
   );
 }
