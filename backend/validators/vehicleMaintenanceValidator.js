@@ -1,11 +1,11 @@
 import { z } from "zod";
 
 export const vehicleMaintenanceSchema = z.object({
-  vehicle_id: z.number().int().positive(),
+
 
   service_type: z.string(),
 
-  service_date: z.string(),
+  service_date: z.iso.date(),
 
   service_cost: z.number().positive(),
 

@@ -6,7 +6,7 @@ import { updateVehicleSchema, vehicleSchema } from "../validators/vehicleValidat
 
 const vehicleRouter = express.Router();
 
-vehicleRouter.post("/",validate(vehicleSchema),upload.single("image"),registerVehicle)
+vehicleRouter.post("/",upload.single("image"),validate(vehicleSchema),registerVehicle)
 
 vehicleRouter.get("/",getAllVehicles);
 
@@ -16,7 +16,7 @@ vehicleRouter.get("/:id",getVehicleById);
 
 vehicleRouter.get("/uploads/:filename",getVehicleImage)
 
-vehicleRouter.patch("/:id",validate(updateVehicleSchema),upload.single("image"),updateVehicle);
+vehicleRouter.patch("/:id",upload.single("image"),validate(updateVehicleSchema),updateVehicle);
 
 vehicleRouter.delete("/:id",removeVehicle);
 
