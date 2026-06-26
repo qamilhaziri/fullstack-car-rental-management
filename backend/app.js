@@ -22,7 +22,7 @@ import logger from "./utils/logger.js";
 
 const app = express()
 const PORT = 5005
-
+app.set("trust proxy", 1);
 app.use(httpLogger)
 app.use(express.json());
 app.use(cookieParser());
