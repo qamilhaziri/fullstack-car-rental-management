@@ -52,7 +52,12 @@ export const login = async (req,res) => {
 }
 
 export const logout = async (req,res) => {
-    res.clearCookie("access_token");
+    res.clearCookie("access_token",{
+            httpOnly:true,
+            secure:true,
+            sameSite:"none",
+            maxAge: 2700 * 1000
+        } );
     req.log.info({ userId: req.user?.user_id }, "Logout successful");
 
     return res.status(200).json({
