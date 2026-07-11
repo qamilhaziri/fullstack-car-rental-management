@@ -1,4 +1,4 @@
-import {  registerRent,getRentById,getRentsByClientId,getRentsByVehicleId,updateRent,removeRent } from "../controllers/rentController.js";
+import {  registerRent,getRentById,getRentsByClientId,getRentsByVehicleId,getRentsAllData,updateRent,removeRent } from "../controllers/rentController.js";
 import express from "express"
 import { rentSchema, updateRentSchema } from "../validators/rentValidator.js";
 import { validate } from "../middleware/validate.js";
@@ -6,6 +6,8 @@ import { validate } from "../middleware/validate.js";
 const rentRouter = express.Router();
 
 rentRouter.post("/",validate(rentSchema),registerRent);
+
+rentRouter.get("/",getRentsAllData)
 
 rentRouter.get("/:id",getRentById)
 

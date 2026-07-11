@@ -28,6 +28,25 @@ const rentModel = {
                         .where("r.vehicle_id",vehicle_id)
     },
 
+    getRentsAllData : async () => {
+        const result = await db.raw(`
+                SELECT
+                    v.model, b.brand,c.client_name,c.client_surname,r.*,
+                    SUM(p.payment_amount) AS paidAmount
+                FROM rent r
+                JOIN vehicle v ON r.vehicle_id = v.vehicle_id
+                JOIN brand b ON v.brand_id = b.brand_id
+                JOIN client c ON r.client_id = c.client_id
+                left JOIN payment p ON p.rent_id = r.rent_id
+                GROUP BY
+                    r.rent_id,
+                    v.model,
+                    b.brand,
+                    c.client_name,
+                    c.client_surname`);
+        return result.rows;
+    },
+
     updateRent: async(rent_id,data) => {
         const result = db("rent")
                         .where({rent_id})

@@ -51,7 +51,7 @@ function RegisterVehicleMaintenance({ vehicles = [], selectedVehicleId = "", onS
         </select>
         <input className="rounded-lg border border-slate-300 px-3 py-2 text-sm" name="service_type" placeholder="Maintenance type" value={formData.service_type} onChange={updateField} required />
         <input className="rounded-lg border border-slate-300 px-3 py-2 text-sm" name="service_date" type="date" value={formData.service_date} onChange={updateField} required />
-        <input className="rounded-lg border border-slate-300 px-3 py-2 text-sm" name="service_cost" type="number" step="0.01" placeholder="Cost" value={formData.service_cost} onChange={updateField} />
+        <input className="rounded-lg border border-slate-300 px-3 py-2 text-sm" name="service_cost" type="number" step="0.01" placeholder="Cost" min="0" value={formData.service_cost} onChange={updateField} />
         <textarea className="rounded-lg border border-slate-300 px-3 py-2 text-sm md:col-span-2" name="other_info" placeholder="Description" rows="3" value={formData.other_info} onChange={updateField} />
       </div>
       {error ? <p className="mt-3 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p> : null}
