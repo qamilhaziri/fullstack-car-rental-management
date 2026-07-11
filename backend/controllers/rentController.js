@@ -50,6 +50,18 @@ export const getRentsByVehicleId = async (req,res) => {
    }
 }
 
+export const getRentsAllData = async (req,res) => {
+   try{
+     
+
+      const rents = await rentModel.getRentsAllData();
+
+      res.json(rents);
+   }catch(error){
+      res.status(500).json({error: error.message});
+   }
+}
+
 export const updateRent = async(req,res) => {
    try{
       const id = req.params.id;

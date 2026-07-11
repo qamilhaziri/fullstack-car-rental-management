@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
 import { getAllClients } from "../api/clientApi";
 import { getPaymentByRentId } from "../api/paymentApi";
-import { getRentsByVehicleId, updateRent } from "../api/rentApi";
+import { getRentsByVehicleId, getRentsAllData ,updateRent } from "../api/rentApi";
 import { getAllVehicles, getAllVehiclesAvailable } from "../api/vehicleApi";
 import Pagination from "../components/ui/Pagination";
 import RegisterPayment from "../components/ui/registerPayment";
@@ -20,7 +20,6 @@ function RentPage() {
   const [vehicles, setVehicles] = useState([]);
   const [availableVehicles, setAvailableVehicles] = useState([]);
   const [rents, setRents] = useState([]);
-  const [paymentsByRent, setPaymentsByRent] = useState({});
   const [paymentRent, setPaymentRent] = useState(null);
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
@@ -38,34 +37,13 @@ function RentPage() {
       ]);
 
       const allVehicles = Array.isArray(vehicleData) ? vehicleData : [];
-      const rentGroups = await Promise.all(
-        allVehicles.map(async (vehicle) => {
-          try {
-            const vehicleRents = await getRentsByVehicleId(vehicle.vehicle_id);
-            return Array.isArray(vehicleRents) ? vehicleRents : [];
-          } catch {
-            return [];
-          }
-        })
-      );
+      const rentsData = await getRentsAllData();
 
-      const allRents = rentGroups.flat();
-      const paymentEntries = await Promise.all(
-        allRents.map(async (rent) => {
-          try {
-            const paymentData = await getPaymentByRentId(rent.rent_id);
-            return [rent.rent_id, Array.isArray(paymentData) ? paymentData : []];
-          } catch {
-            return [rent.rent_id, []];
-          }
-        })
-      );
 
       setClients(Array.isArray(clientData) ? clientData : []);
       setVehicles(allVehicles);
       setAvailableVehicles(Array.isArray(availableData) ? availableData : []);
-      setRents(allRents);
-      setPaymentsByRent(Object.fromEntries(paymentEntries));
+      setRents(Array.isArray(rentsData) ? rentsData : []);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -85,35 +63,13 @@ function RentPage() {
         ]);
 
         const allVehicles = Array.isArray(vehicleData) ? vehicleData : [];
-        const rentGroups = await Promise.all(
-          allVehicles.map(async (vehicle) => {
-            try {
-              const vehicleRents = await getRentsByVehicleId(vehicle.vehicle_id);
-              return Array.isArray(vehicleRents) ? vehicleRents : [];
-            } catch {
-              return [];
-            }
-          })
-        );
-
-        const allRents = rentGroups.flat();
-        const paymentEntries = await Promise.all(
-          allRents.map(async (rent) => {
-            try {
-              const paymentData = await getPaymentByRentId(rent.rent_id);
-              return [rent.rent_id, Array.isArray(paymentData) ? paymentData : []];
-            } catch {
-              return [rent.rent_id, []];
-            }
-          })
-        );
+        const rentsData = await getRentsAllData();
 
         if (!ignore) {
           setClients(Array.isArray(clientData) ? clientData : []);
           setVehicles(allVehicles);
           setAvailableVehicles(Array.isArray(availableData) ? availableData : []);
-          setRents(allRents);
-          setPaymentsByRent(Object.fromEntries(paymentEntries));
+          setRents(Array.isArray(rentsData) ? rentsData : []);
         }
       } catch (err) {
         if (!ignore) setError(err.message);
@@ -129,34 +85,20 @@ function RentPage() {
     };
   }, []);
 
-  const clientMap = useMemo(() => {
-    return clients.reduce((map, client) => {
-      map[client.client_id] = client;
-      return map;
-    }, {});
-  }, [clients]);
 
-  const vehicleMap = useMemo(() => {
-    return vehicles.reduce((map, vehicle) => {
-      map[vehicle.vehicle_id] = vehicle;
-      return map;
-    }, {});
-  }, [vehicles]);
 
   const filteredRents = useMemo(() => {
     const value = search.toLowerCase().trim();
     if (!value) return rents;
 
     return rents.filter((rent) => {
-      const client = clientMap[rent.client_id];
-      const vehicle = vehicleMap[rent.vehicle_id] || rent;
-      return [client?.client_name, client?.client_surname, vehicle?.brand, vehicle?.model, rent.rent_id]
+      return [rent?.client_name, rent?.client_surname, rent?.brand, rent?.model, rent.rent_id]
         .filter(Boolean)
         .join(" ")
         .toLowerCase()
         .includes(value);
     });
-  }, [clientMap, rents, search, vehicleMap]);
+  }, [rents, search]);
 
   const totalPages = Math.max(1, Math.ceil(filteredRents.length / pageSize));
   const currentPage = Math.min(page, totalPages);
@@ -236,22 +178,18 @@ function RentPage() {
             </thead>
             <tbody className="divide-y divide-slate-100">
               {paginatedRents.map((rent) => {
-                const client = clientMap[rent.client_id];
-                const vehicle = vehicleMap[rent.vehicle_id] || rent;
-                const payments = paymentsByRent[rent.rent_id] || [];
-                const paidAmount = payments.reduce((total, payment) => total + Number(payment.payment_amount || 0), 0);
                 return (
                   <tr key={rent.rent_id}>
                     <td className="px-4 py-3 font-medium text-slate-950">
-                      {vehicle.brand} {vehicle.model}
+                      {rent.brand} {rent.model}
                     </td>
                     <td className="px-4 py-3 text-slate-600">
-                      {client ? `${client.client_name} ${client.client_surname}` : `Client #${rent.client_id}`}
+                      {rent ? `${rent.client_name} ${rent.client_surname}` : `Client #${rent.client_id}`}
                     </td>
                     <td className="px-4 py-3 text-slate-600">{formatDate(rent.date_rented)}</td>
                     <td className="px-4 py-3 text-slate-600">{formatDate(rent.date_to_return)}</td>
                     <td className="px-4 py-3 text-slate-600">{formatDate(rent.date_returned)}</td>
-                    <td className="px-4 py-3 font-medium text-slate-700">{paidAmount.toFixed(2)} EUR</td>
+                    <td className="px-4 py-3 font-medium text-slate-700">{Number(rent.paidamount).toFixed(2)} EUR</td>
                     <td className="px-4 py-3">
                       <span className={rent.is_returned ? "rounded-full bg-slate-100 px-2 py-1 text-xs text-slate-600" : "rounded-full bg-green-50 px-2 py-1 text-xs text-green-700"}>
                         {rent.is_returned ? "Returned" : "Active"}

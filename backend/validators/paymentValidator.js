@@ -3,7 +3,7 @@ import { z } from "zod";
 export const paymentSchema = z.object({
   rent_id: z.number().int().positive(),
 
-  payment_amount: z.number().positive(),
+  payment_amount: z.number(),
 
   date_payment: z.iso.date()
 });

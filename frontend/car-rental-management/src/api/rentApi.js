@@ -19,6 +19,15 @@ export const getRentById = async (rentId) => {
   }
 };
 
+export const getRentsAllData = async () => {
+  try {
+    const response = await api.get(`/rent`);
+    return response.data;
+  } catch (error) {
+    handleApiError(error);
+  }
+};
+
 export const getRentsByClientId = async (clientId) => {
   try {
     const response = await api.get(`/rent/client/${clientId}`);

@@ -188,9 +188,9 @@ function RegisterVehicle({ brands = [], editingVehicle, onCancelEdit, onSuccess 
           <option value="Manual">Manual</option>
         </select>
         <input className="rounded-lg border border-slate-300 px-3 py-2 text-sm" name="color" placeholder="Color" value={formData.color} onChange={updateField} required />
-        <input className="rounded-lg border border-slate-300 px-3 py-2 text-sm" name="cost_per_hour" type="number" step="0.01" placeholder="Cost per hour" value={costData.cost_per_hour} onChange={updateCostField} required />
-        <input className="rounded-lg border border-slate-300 px-3 py-2 text-sm" name="cost_per_day" type="number" step="0.01" placeholder="Cost per day" value={costData.cost_per_day} onChange={updateCostField} required />
-        <input className="rounded-lg border border-slate-300 px-3 py-2 text-sm" name="doors" type="number" placeholder="Doors" value={formData.doors} onChange={updateField} required />
+        <input className="rounded-lg border border-slate-300 px-3 py-2 text-sm" name="cost_per_hour" type="number" step="0.01" placeholder="Cost per hour" min="0" value={costData.cost_per_hour} onChange={updateCostField} required />
+        <input className="rounded-lg border border-slate-300 px-3 py-2 text-sm" name="cost_per_day" type="number" step="0.01" placeholder="Cost per day" min="0" value={costData.cost_per_day} onChange={updateCostField} required />
+        <input className="rounded-lg border border-slate-300 px-3 py-2 text-sm" name="doors" type="number" placeholder="Doors" min="2" value={formData.doors} onChange={updateField} required />
         <label className="text-sm text-slate-600">
           Production date
           <input className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm" name="production_year" type="date" value={formData.production_year} onChange={updateField} required />
