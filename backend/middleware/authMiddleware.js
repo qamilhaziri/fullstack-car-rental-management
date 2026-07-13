@@ -11,7 +11,14 @@ const authMiddleware = (req,res,next) => {
     }
 
     try {
-        const decoded = jwt.verify(token,process.env.JWT_SECRET);
+        const decoded = jwt.verify(token,process.env.JWT_SECRET,{
+            issuer: "car-rental-api",
+            audience: "car-rental-client",
+        });
+
+        if(decoded.token_type !== "access"){
+            return res.status(401).json({ message: "Unauthorized" });
+        }
 
         req.user = decoded;
         req.log?.debug({ userId: decoded.user_id }, "Access token verified");

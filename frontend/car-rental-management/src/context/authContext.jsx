@@ -1,13 +1,20 @@
 import { useEffect, useState } from "react";
 import { getCurrentUser, logout } from "../api/authApi.js";
 import { AuthContext } from "./authContextValue.js";
+import { useLocation } from "react-router-dom";
 
 export const AuthProvider = ({ children }) => {
 
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
+    const location = useLocation();
 
-    useEffect(() => {
+   useEffect(() => {
+
+        if(location.pathname === "/login"){
+            setLoading(false);
+            return;
+        }
         const loadUser = async () => {
             try{
                 const res = await getCurrentUser();

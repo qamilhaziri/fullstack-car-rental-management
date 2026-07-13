@@ -1,4 +1,4 @@
-import {login, logout, me} from "../controllers/authController.js";
+import {login, logout, me,refresh} from "../controllers/authController.js";
 import express from "express"
 import authMiddleware from "../middleware/authMiddleware.js";
 import { loginLimiter } from "../middleware/rateLimit.js";
@@ -8,6 +8,8 @@ import { loginSchema } from "../validators/loginValidator.js";
 const authRouter = express.Router();
 
 authRouter.post("/login",validate(loginSchema),loginLimiter,login);
+
+authRouter.post("/refresh",refresh)
 
 authRouter.post("/logout",logout);
 
