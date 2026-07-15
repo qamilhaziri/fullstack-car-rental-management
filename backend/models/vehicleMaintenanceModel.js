@@ -22,6 +22,12 @@ const vehicleMaintenanceModel = {
                         .where({vehicle_id});
     },
 
+    getVehicleMaintenanceById: async (vmaintenance_id) => {
+        return await db("vehicle_maintenance")
+                        .where({ vmaintenance_id })
+                        .first();
+    },
+
     updateVehicleMaintenance: async(vmaintenance_id,data) => {
         const result = db("vehicle_maintenance")
                         .where({vmaintenance_id})

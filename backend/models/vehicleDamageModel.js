@@ -25,7 +25,7 @@ const vehicleDamageModel = {
                     .where("vd.vehicle_id",vehicle_id)
                     
     },
-     getDamageByClientId: async (client_id) => {
+    getDamageByClientId: async (client_id) => {
         return await db("vehicle_damage as vd")
                     .join("vehicle as v","vd.vehicle_id","v.vehicle_id")
                     .join("client as c","vd.client_id","c.client_id")
@@ -39,7 +39,11 @@ const vehicleDamageModel = {
                     .where("vd.client_id",client_id)
                     
     },
-
+    getVehicleDamageById: async (vdamage_id) => {
+        return await db("vehicle_damage")
+                    .where({ vdamage_id })
+                    .first();
+    },
     updateVehicleDamage: async(vdamage_id,data) => {
         const result = db("vehicle_damage")
                         .where({vdamage_id})

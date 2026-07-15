@@ -1,5 +1,13 @@
 import vehicleModel from "../models/vehicleModel.js";
 import path from "path";
+import redis from "../config/redisConfig.js";
+
+
+async function invalidateVehicleCache (){
+   if(redis.isOpen){
+      await redis.del("vehicles:all");
+   }
+}
 
 export const registerVehicle = async (req,res) => {
    try{
@@ -12,6 +20,7 @@ export const registerVehicle = async (req,res) => {
 
       await vehicleModel.registerVehicle(data);
 
+      await invalidateVehicleCache ();
      
      return res.status(201).json({
       message: "Vehicle inserted successfully"
@@ -24,9 +33,21 @@ export const registerVehicle = async (req,res) => {
 
 export const getAllVehicles = async (req,res) => {
    try{
+
+      if(redis.isOpen){
+         const cachedVehicles = await redis.get("vehicles:all");
+
+         if(cachedVehicles){
+            return res.set("X-Cache","HIT").json(JSON.parse(cachedVehicles));
+         }
+      }
     const vehicles = await vehicleModel.getAllVehicles();
     
-    res.json(vehicles);
+      if(redis.isOpen){
+         await redis.setEx("vehicles:all",300,JSON.stringify(vehicles))
+      }
+
+    return res.set("X-Cache","MISS").json(vehicles);
    }catch(error){
         res.status(500).json({error: error.message});
    }
@@ -70,6 +91,7 @@ export const updateVehicle = async(req,res) => {
 
       const vehicle = await vehicleModel.updateVehicle(id,data);
       
+      await invalidateVehicleCache ();
       res.json(vehicle)
    }catch(error){
       res.status(500).json({error: error.message});
@@ -83,6 +105,8 @@ export const removeVehicle = async(req,res) => {
 
       const vehicle = await vehicleModel.removeVehicle(id);
       
+     await  invalidateVehicleCache ();
+
       res.status(204).json(vehicle)
    }catch(error){
       res.status(500).json({error: error.message});

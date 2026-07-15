@@ -5,6 +5,7 @@ import express from "express"
 import cookieParser from "cookie-parser";
 import cors from "cors"
 import helmet from "helmet"
+import { connectRedis } from "./config/redisConfig.js";
 import vehicleRouter from "./routes/vehicleRoute.js";
 import clientRouter from "./routes/clientRoute.js";
 import vehicleMaintenanceRouter from "./routes/vehicleMaintenanceRoute.js";
@@ -23,12 +24,16 @@ import logger from "./utils/logger.js";
 const app = express()
 const PORT = 5005
 app.set("trust proxy", 1);
+
+await connectRedis();
+
 app.use(httpLogger)
 app.use(express.json());
 app.use(cookieParser());
 app.use(cors({
       origin:process.env.CLIENT_URL,
-      credentials:true
+      credentials:true,
+      exposedHeaders: ["X-Cache"],
 }))
  app.use(helmet({
       crossOriginResourcePolicy: {
