@@ -19,13 +19,12 @@ import authMiddleware from "./middleware/authMiddleware.js";
 import {generalLimiter} from "./middleware/rateLimit.js";
 import httpLogger from "./middleware/httpLogger.js";
 import logger from "./utils/logger.js";
+import { fileURLToPath } from "node:url";
 
 
 const app = express()
 const PORT = 5005
 app.set("trust proxy", 1);
-
-await connectRedis();
 
 app.use(httpLogger)
 app.use(express.json());
@@ -59,6 +58,16 @@ app.use((error,req,res,next) => {
       })
 })
 
-app.listen(PORT, () => {
-      logger.info({ port: PORT, clientUrl: process.env.CLIENT_URL }, "Server started")
-})
+export default app;
+
+export const startServer = async () => {
+      await connectRedis();
+
+      return app.listen(PORT, () => {
+            logger.info({ port: PORT, clientUrl: process.env.CLIENT_URL }, "Server started")
+      });
+};
+
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
+      await startServer();
+}

@@ -102,7 +102,7 @@ export const removeClient = async(req,res) => {
 
       await invalidateClientCache(id);
       
-      res.status(204).json(client)
+      res.status(200).json(client)
    }catch(error){
       res.status(500).json({error: error.message});
    }
