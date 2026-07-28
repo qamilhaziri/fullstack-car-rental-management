@@ -3,6 +3,10 @@ import request from "supertest";
 import jwt from "jsonwebtoken";
 import { PostgreSqlContainer } from "@testcontainers/postgresql";
 import path from "node:path";
+import {
+  configurePostgresEnvironment,
+  runIntegrationSetup,
+} from "../helpers/testContainerEnv.js";
 
 let container;
 let db;
@@ -10,12 +14,9 @@ let app;
 let accessToken;
 
 beforeAll(async () => {
+  await runIntegrationSetup("Vehicle", async () => {
   container = await new PostgreSqlContainer("postgres:16-alpine").start();
-  process.env.DB_HOST = container.getHost();
-  process.env.DB_PORT = String(container.getPort());
-  process.env.DB_NAME = container.getDatabase();
-  process.env.DB_USER = container.getUsername();
-  process.env.DB_PASSWORD = container.getPassword();
+  configurePostgresEnvironment(container);
   process.env.JWT_SECRET = "vehicle-integration-secret";
   process.env.CLIENT_URL = "http://localhost:5173";
 
@@ -35,6 +36,7 @@ beforeAll(async () => {
 
   app = (await import("../../app.js")).default;
   app.locals.vehicleFixture = { brandId: brand.brand_id, costId: cost.vcost_id };
+  });
 }, 120_000);
 
 afterAll(async () => {

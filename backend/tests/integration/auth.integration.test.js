@@ -3,6 +3,10 @@ import bcrypt from "bcrypt";
 import request from "supertest";
 import { PostgreSqlContainer } from "@testcontainers/postgresql";
 import path from "node:path";
+import {
+  configurePostgresEnvironment,
+  runIntegrationSetup,
+} from "../helpers/testContainerEnv.js";
 
 let container;
 let db;
@@ -15,13 +19,10 @@ const admin = {
 };
 
 beforeAll(async () => {
+  await runIntegrationSetup("Authentication", async () => {
   container = await new PostgreSqlContainer("postgres:16-alpine").start();
 
-  process.env.DB_HOST = container.getHost();
-  process.env.DB_PORT = String(container.getPort());
-  process.env.DB_NAME = container.getDatabase();
-  process.env.DB_USER = container.getUsername();
-  process.env.DB_PASSWORD = container.getPassword();
+  configurePostgresEnvironment(container);
   process.env.JWT_SECRET = "integration-access-secret";
   process.env.JWT_REFRESH_SECRET = "integration-refresh-secret";
   process.env.JWT_EXPIRES_IN = "10m";
@@ -41,6 +42,7 @@ beforeAll(async () => {
   });
 
   ({ default: app } = await import("../../app.js"));
+  });
 }, 120_000);
 
 afterAll(async () => {

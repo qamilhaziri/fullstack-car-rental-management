@@ -4,6 +4,11 @@ import jwt from "jsonwebtoken";
 import { PostgreSqlContainer } from "@testcontainers/postgresql";
 import { RedisContainer } from "@testcontainers/redis";
 import path from "node:path";
+import {
+  configurePostgresEnvironment,
+  getContainerHost,
+  runIntegrationSetup,
+} from "../helpers/testContainerEnv.js";
 
 
 
@@ -39,18 +44,15 @@ const createAccessToken = () =>
   );
 
 beforeAll(async () => {
+  await runIntegrationSetup("Client", async () => {
   container = await new PostgreSqlContainer("postgres:16-alpine").start();
   redisContainer = await new RedisContainer("redis:7.2").withExposedPorts(6379).start();
 
   // dbConfig reads these values when it is dynamically imported below.
-  process.env.DB_HOST = container.getHost();
-  process.env.DB_PORT = String(container.getPort());
-  process.env.DB_NAME = container.getDatabase();
-  process.env.DB_USER = container.getUsername();
-  process.env.DB_PASSWORD = container.getPassword();
+  configurePostgresEnvironment(container);
   process.env.JWT_SECRET = "integration-test-secret";
   process.env.CLIENT_URL = "http://localhost:5173";
-  process.env.REDIS_URL = `redis://${redisContainer.getHost()}:${redisContainer.getMappedPort(6379)}`;
+  process.env.REDIS_URL = `redis://${getContainerHost(redisContainer)}:${redisContainer.getMappedPort(6379)}`;
 
   ({ default: db } = await import("../../config/dbConfig.js"));
 
@@ -63,6 +65,7 @@ beforeAll(async () => {
     await import("../../config/redisConfig.js"));
 
   await connectRedis();
+  });
 }, 120_000);
 
 afterAll(async () => {
