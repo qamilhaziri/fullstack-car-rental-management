@@ -1,9 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
 import { getAllClients } from "../api/clientApi";
-import { getPaymentByRentId } from "../api/paymentApi";
-import { getRentsByVehicleId, getRentsAllData ,updateRent } from "../api/rentApi";
-import { getAllVehicles, getAllVehiclesAvailable } from "../api/vehicleApi";
+import { getRentsAllData ,updateRent } from "../api/rentApi";
+import { getAllVehiclesAvailable } from "../api/vehicleApi";
 import Pagination from "../components/ui/Pagination";
 import RegisterPayment from "../components/ui/registerPayment";
 import RegisterRent from "../components/ui/registerRent";
@@ -17,7 +16,6 @@ const pageSize = 10;
 function RentPage() {
   const { vehicleId } = useParams();
   const [clients, setClients] = useState([]);
-  const [vehicles, setVehicles] = useState([]);
   const [availableVehicles, setAvailableVehicles] = useState([]);
   const [rents, setRents] = useState([]);
   const [paymentRent, setPaymentRent] = useState(null);
@@ -30,18 +28,15 @@ function RentPage() {
     setLoading(true);
     setError("");
     try {
-      const [clientData, vehicleData, availableData] = await Promise.all([
+      const [clientData, availableData] = await Promise.all([
         getAllClients(),
-        getAllVehicles(),
         getAllVehiclesAvailable(),
       ]);
 
-      const allVehicles = Array.isArray(vehicleData) ? vehicleData : [];
       const rentsData = await getRentsAllData();
 
 
       setClients(Array.isArray(clientData) ? clientData : []);
-      setVehicles(allVehicles);
       setAvailableVehicles(Array.isArray(availableData) ? availableData : []);
       setRents(Array.isArray(rentsData) ? rentsData : []);
     } catch (err) {
@@ -56,18 +51,15 @@ function RentPage() {
 
     const loadInitialData = async () => {
       try {
-        const [clientData, vehicleData, availableData] = await Promise.all([
+        const [clientData, availableData] = await Promise.all([
           getAllClients(),
-          getAllVehicles(),
           getAllVehiclesAvailable(),
         ]);
 
-        const allVehicles = Array.isArray(vehicleData) ? vehicleData : [];
         const rentsData = await getRentsAllData();
 
         if (!ignore) {
           setClients(Array.isArray(clientData) ? clientData : []);
-          setVehicles(allVehicles);
           setAvailableVehicles(Array.isArray(availableData) ? availableData : []);
           setRents(Array.isArray(rentsData) ? rentsData : []);
         }

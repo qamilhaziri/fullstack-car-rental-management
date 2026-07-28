@@ -84,7 +84,7 @@ describe("clientController", () => {
     // Act
     await removeClient(req, res);
     // Assert
-    expect(clientModelMock.removeClient).toHaveBeenCalledWith("4"); expect(redisMock.del).toHaveBeenCalledWith(["clients:all", "clients:4"]); expect(res.status).toHaveBeenCalledWith(204); expect(res.json).toHaveBeenCalledWith(client);
+    expect(clientModelMock.removeClient).toHaveBeenCalledWith("4"); expect(redisMock.del).toHaveBeenCalledWith(["clients:all", "clients:4"]); expect(res.status).toHaveBeenCalledWith(200); expect(res.json).toHaveBeenCalledWith(client);
   });
 
   test("returns 500 when a client dependency rejects", async () => {

@@ -5,14 +5,13 @@ import { useLocation } from "react-router-dom";
 
 export const AuthProvider = ({ children }) => {
 
-    const [user, setUser] = useState(null);
-    const [loading, setLoading] = useState(true);
     const location = useLocation();
+    const [user, setUser] = useState(null);
+    const [loading, setLoading] = useState(() => location.pathname !== "/login");
 
    useEffect(() => {
 
         if(location.pathname === "/login"){
-            setLoading(false);
             return;
         }
         const loadUser = async () => {
@@ -26,7 +25,7 @@ export const AuthProvider = ({ children }) => {
             }
         }
         loadUser();
-    },[])
+    },[location.pathname])
 
     const logoutHandle = async () => {
         try{

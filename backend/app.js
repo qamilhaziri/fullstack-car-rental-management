@@ -23,7 +23,8 @@ import { fileURLToPath } from "node:url";
 
 
 const app = express()
-const PORT = 5005
+// Render provides PORT at runtime. Keep 5005 for local development.
+const PORT = Number(process.env.PORT) || 5005
 app.set("trust proxy", 1);
 
 app.use(httpLogger)

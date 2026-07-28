@@ -41,6 +41,10 @@ coverage/
 # ESLint cache
 .eslintcache
 
+# Playwright artifacts
+playwright-report/
+test-results/
+
 # Temporary files
 *.tmp
 *.temp
